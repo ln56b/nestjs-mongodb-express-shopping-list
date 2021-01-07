@@ -3,16 +3,22 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ShoppingListModule } from './shopping-list/shopping-list.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://helene:TVjTcb87rsBmPWlg@cluster0.ota9e.mongodb.net/shopping-list?retryWrites=true&w=majority',
-      { useNewUrlParser: true, useUnifiedTopology: true },
-    ),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule.forRoot()],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get('MONGODB_URI'),
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }),
+      inject: [ConfigService],
+    }),
     ShoppingListModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ConfigService],
 })
 export class AppModule {}
