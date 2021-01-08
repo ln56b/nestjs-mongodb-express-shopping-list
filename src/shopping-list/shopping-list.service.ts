@@ -16,7 +16,11 @@ export class ShoppingListService {
     const lists = await this.shoppingListModel.find().exec();
     return lists;
   }
-  // get a single list
+  // get a single lists
+  async getOneList(id: number): Promise<ShoppingList> {
+    const list = await this.shoppingListModel.findById(id).exec();
+    return list;
+  }
 
   // post a list
   async addList(shoppingListDTO: ShoppingListDTO): Promise<ShoppingList> {
@@ -25,6 +29,20 @@ export class ShoppingListService {
   }
 
   // update a list
-
+  async updateList(
+    id: number,
+    shoppingListDTO: ShoppingListDTO,
+  ): Promise<ShoppingList> {
+    const updatedList = await this.shoppingListModel.findByIdAndUpdate(
+      id,
+      shoppingListDTO,
+      { new: true },
+    );
+    return updatedList;
+  }
   // delete a list
+  async deleteList(id): Promise<any> {
+    const deletedList = await this.shoppingListModel.findByIdAndRemove(id);
+    return deletedList;
+  }
 }
