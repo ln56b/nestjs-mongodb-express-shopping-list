@@ -10,12 +10,17 @@ import {
   Put,
   Res,
 } from '@nestjs/common';
+import { ItemService } from 'src/item/item.service';
 import { ShoppingListDTO } from './dto/shopping-list.dto';
+import { ItemDTO } from '../item/dto/item.dto';
 import { ShoppingListService } from './shopping-list.service';
 
 @Controller('lists')
 export class ShoppingListController {
-  constructor(private shoppingListService: ShoppingListService) {}
+  constructor(
+    private shoppingListService: ShoppingListService,
+    private itemService: ItemService,
+  ) {}
 
   // post a list
   @Post()
@@ -35,12 +40,12 @@ export class ShoppingListController {
   }
 
   // get one list
-  @Get(':listId')
-  async getOneList(@Res() res, @Param('listId') id) {
-    const list = await this.shoppingListService.getOneList(id);
-    if (!list) throw new NotFoundException('List does not exist');
-    return res.status(HttpStatus.OK).json(list);
-  }
+  // @Get(':listId/items')
+  // async getOneList(@Res() res, @Param('listId') id) {
+  //   const list = await this.shoppingListService.getOneList(id);
+  //   if (!list) throw new NotFoundException('List does not exist');
+  //   return res.status(HttpStatus.OK).json(list);
+  // }
 
   // update a list
   @Put(':listId')
@@ -65,4 +70,30 @@ export class ShoppingListController {
       .status(HttpStatus.OK)
       .json({ message: 'List successfully deleted', list });
   }
+
+  // post an item in list
+  @Post(':listId/items')
+  async addItem(
+    @Res() res,
+    @Param('listId') listId: string,
+    @Body() itemDTO: ItemDTO,
+  ) {
+    console.log(res);
+    const item = await this.itemService.addItem(listId, itemDTO);
+    return res.status(HttpStatus.OK).json({
+      message: 'Item successfully created',
+      item,
+    });
+  }
+  // get all items from a list
+  @Get(':listId/items')
+  async getAllItems(@Res() res, @Param('listId') id: string) {
+    const items = await this.itemService.getAllItems(id);
+    return res.status(HttpStatus.OK).json(items);
+  }
+  // get one item from list
+
+  // update an item from list
+
+  // delete an item from list
 }

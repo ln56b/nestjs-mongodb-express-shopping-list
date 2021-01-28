@@ -6,4 +6,10 @@ export const ShoppingListSchema = new mongoose.Schema({
   total: Number,
   createdAt: { type: Date, default: Date.now },
   isMarkedOut: { type: Boolean, default: false },
+  items: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Item',
+    },
+  ],
 });

@@ -6,4 +6,5 @@ export interface ShoppingList extends Document {
   readonly total: number;
   readonly createdAt: Date;
   readonly isMarkedOut: boolean;
+  readonly items: string[];
 }

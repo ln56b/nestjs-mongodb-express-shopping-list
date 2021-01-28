@@ -13,12 +13,18 @@ export class ShoppingListService {
 
   // fetch all lists
   async getAllLists(): Promise<ShoppingList[]> {
-    const lists = await this.shoppingListModel.find().exec();
+    const lists = await this.shoppingListModel
+      .find()
+      .populate('item')
+      .exec();
     return lists;
   }
-  // get a single lists
-  async getOneList(id: number): Promise<ShoppingList> {
-    const list = await this.shoppingListModel.findById(id).exec();
+  // get a single list
+  async getOneList(id: string): Promise<ShoppingList> {
+    const list = await this.shoppingListModel
+      .findById(id)
+      .populate('item')
+      .exec();
     return list;
   }
 
