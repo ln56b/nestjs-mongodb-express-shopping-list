@@ -6,5 +6,8 @@ export const ItemSchema = new mongoose.Schema({
   quantity: Number,
   unit: String,
   isMarkedOut: { type: Boolean, default: false },
-  shoppingListId: String,
+  shoppingList: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ShoppingList',
+  },
 });

@@ -4,5 +4,5 @@ export class ItemDTO {
   readonly quantity: number;
   readonly unit: string;
   readonly isMarkedOut: boolean;
-  readonly shoppingListId: string;
+  readonly shoppingList: string;
 }
