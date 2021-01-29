@@ -78,8 +78,9 @@ export class ShoppingListController {
     @Param('listId') listId: string,
     @Body() itemDTO: ItemDTO,
   ) {
-    console.log(res);
+    const list = await this.shoppingListService.getOneList(listId);
     const item = await this.itemService.addItem(listId, itemDTO);
+    if (!list) throw new NotFoundException('List does not exist');
     return res.status(HttpStatus.OK).json({
       message: 'Item successfully created',
       item,
@@ -88,6 +89,8 @@ export class ShoppingListController {
   // get all items from a list
   @Get(':listId/items')
   async getAllItems(@Res() res, @Param('listId') id: string) {
+    const list = await this.shoppingListService.getOneList(id);
+    if (!list) throw new NotFoundException('List does not exist');
     const items = await this.itemService.getAllItems(id);
     return res.status(HttpStatus.OK).json(items);
   }
