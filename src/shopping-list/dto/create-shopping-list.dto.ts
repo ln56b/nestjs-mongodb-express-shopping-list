@@ -15,5 +15,5 @@ export class CreateShoppingListDTO {
 
   readonly isMarkedOut: boolean = false;
 
-  readonly items: string[];
+  readonly items: any[];
 }

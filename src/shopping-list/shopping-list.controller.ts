@@ -10,10 +10,11 @@ import {
   Put,
   Res,
 } from '@nestjs/common';
-import { ItemService } from 'src/item/item.service';
-import { ShoppingListDTO } from './dto/shopping-list.dto';
-import { ItemDTO } from '../item/dto/item.dto';
+import { CreateShoppingListDTO } from './dto/create-shopping-list.dto';
+import { UpdateShoppingListDTO } from './dto/update-shopping-list.dto';
+import { CreateItemDTO } from '../item/dto/create-item.dto';
 import { ShoppingListService } from './shopping-list.service';
+import { ItemService } from 'src/item/item.service';
 
 @Controller('lists')
 export class ShoppingListController {
@@ -24,12 +25,24 @@ export class ShoppingListController {
 
   // post a list
   @Post()
-  async addList(@Res() res, @Body() shoppingListDTO: ShoppingListDTO) {
-    const list = await this.shoppingListService.addList(shoppingListDTO);
-    return res.status(HttpStatus.OK).json({
-      message: 'List successfully created',
-      list,
-    });
+  async addList(
+    @Res() res,
+    @Body() createShoppingListDTO: CreateShoppingListDTO,
+  ) {
+    try {
+      const list = await this.shoppingListService.addList(
+        createShoppingListDTO,
+      );
+      return res.status(HttpStatus.OK).json({
+        message: 'List successfully created',
+        list,
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Error: List not created',
+        status: 400,
+      });
+    }
   }
 
   // get all lists
@@ -39,33 +52,51 @@ export class ShoppingListController {
     return res.status(HttpStatus.OK).json(lists);
   }
 
-  // get one list
-  // @Get(':listId/items')
-  // async getOneList(@Res() res, @Param('listId') id) {
-  //   const list = await this.shoppingListService.getOneList(id);
-  //   if (!list) throw new NotFoundException('List does not exist');
-  //   return res.status(HttpStatus.OK).json(list);
-  // }
+  // get one list with items
+  @Get(':listId/items')
+  async getOneListWithItems(@Res() res, @Param('listId') listId: string) {
+    const list = await this.itemService.getAllItems(listId);
+    if (!list) {
+      throw new NotFoundException('List does not exist');
+    }
+    return res.status(HttpStatus.OK).json(list);
+  }
 
   // update a list
   @Put(':listId')
   async updateList(
     @Res() res,
-    @Param('listId') id,
-    @Body() shoppingListDTO: ShoppingListDTO,
+    @Param('listId') listId,
+    @Body() updateShoppingListDTO: UpdateShoppingListDTO,
   ) {
-    const list = await this.shoppingListService.updateList(id, shoppingListDTO);
-    if (!list) throw new NotFoundException('List does not exist');
-    return res
-      .status(HttpStatus.OK)
-      .json({ message: 'List successfully updated', list });
+    try {
+      const list = await this.shoppingListService.updateList(
+        listId,
+        updateShoppingListDTO,
+      );
+      if (!list) throw new NotFoundException('List does not exist');
+      return res
+        .status(HttpStatus.OK)
+        .json({ message: 'List successfully updated', list });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Error: List not updated',
+        status: 400,
+      });
+    }
   }
 
   // delete a list
   @Delete(':listId')
-  async deleteList(@Res() res, @Param('listId') id) {
-    const list = await this.shoppingListService.deleteList(id);
-    if (!list) throw new NotFoundException('List does not exist');
+  async deleteList(@Res() res, @Param('listId') listId: string) {
+    if (!listId) {
+      throw new NotFoundException('List ID does not exist');
+    }
+    const list = await this.shoppingListService.deleteList(listId);
+
+    if (!list) {
+      throw new NotFoundException('List does not exist');
+    }
     return res
       .status(HttpStatus.OK)
       .json({ message: 'List successfully deleted', list });
@@ -76,24 +107,17 @@ export class ShoppingListController {
   async addItem(
     @Res() res,
     @Param('listId') listId: string,
-    @Body() itemDTO: ItemDTO,
+    @Body() createItemDTO: CreateItemDTO,
   ) {
-    const list = await this.shoppingListService.getOneList(listId);
-    const item = await this.itemService.addItem(listId, itemDTO);
-    if (!list) throw new NotFoundException('List does not exist');
+    // const list = await this.shoppingListService.getOneList(listId);
+    const item = await this.itemService.addItem(listId, createItemDTO);
+    if (!listId) throw new NotFoundException('List does not exist');
     return res.status(HttpStatus.OK).json({
       message: 'Item successfully created',
       item,
     });
   }
-  // get all items from a list
-  @Get(':listId/items')
-  async getAllItems(@Res() res, @Param('listId') id: string) {
-    const list = await this.shoppingListService.getOneList(id);
-    if (!list) throw new NotFoundException('List does not exist');
-    const items = await this.itemService.getAllItems(id);
-    return res.status(HttpStatus.OK).json(items);
-  }
+
   // get one item from list
 
   // update an item from list

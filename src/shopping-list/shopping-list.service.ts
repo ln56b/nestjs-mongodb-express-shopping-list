@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ShoppingList } from './interfaces/shopping-list.interface';
-import { ShoppingListDTO } from './dto/shopping-list.dto';
+import { CreateShoppingListDTO } from './dto/create-shopping-list.dto';
+import { UpdateShoppingListDTO } from './dto/update-shopping-list.dto';
+import { ShoppingList } from './schemas/shopping-list.schema';
 
 @Injectable()
 export class ShoppingListService {
@@ -11,44 +12,54 @@ export class ShoppingListService {
     private readonly shoppingListModel: Model<ShoppingList>,
   ) {}
 
+  // post a list
+  async addList(
+    createShoppingListDTO: CreateShoppingListDTO,
+  ): Promise<ShoppingList> {
+    const newList = await new this.shoppingListModel(createShoppingListDTO);
+    return newList.save();
+  }
+
   // fetch all lists
   async getAllLists(): Promise<ShoppingList[]> {
     const lists = await this.shoppingListModel
       .find()
-      .populate('item')
+      .populate('items')
       .exec();
     return lists;
   }
   // get a single list
-  async getOneList(id: string): Promise<ShoppingList> {
+  async getOneList(listId: string): Promise<ShoppingList> {
     const list = await this.shoppingListModel
-      .findById(id)
-      .populate('item')
+      .findById({ _id: listId })
+      .populate('items')
       .exec();
-    return list;
-  }
 
-  // post a list
-  async addList(shoppingListDTO: ShoppingListDTO): Promise<ShoppingList> {
-    const newList = new this.shoppingListModel(shoppingListDTO);
-    return newList.save();
+    if (!list) {
+      throw new NotFoundException(`List #${listId} does not exist`);
+    }
+    console.log(list.populated('items'));
+    return list;
   }
 
   // update a list
   async updateList(
-    id: number,
-    shoppingListDTO: ShoppingListDTO,
+    listId: string,
+    updateShoppingListDTO: UpdateShoppingListDTO,
   ): Promise<ShoppingList> {
-    const updatedList = await this.shoppingListModel.findByIdAndUpdate(
-      id,
-      shoppingListDTO,
-      { new: true },
+    const listToUpdate = await this.shoppingListModel.findByIdAndUpdate(
+      { _id: listId },
+      updateShoppingListDTO,
     );
-    return updatedList;
+
+    if (!listToUpdate) {
+      throw new NotFoundException(`List #${listId} does not exist`);
+    }
+    return listToUpdate;
   }
   // delete a list
-  async deleteList(id): Promise<any> {
-    const deletedList = await this.shoppingListModel.findByIdAndRemove(id);
+  async deleteList(listId: string): Promise<any> {
+    const deletedList = await this.shoppingListModel.findByIdAndRemove(listId);
     return deletedList;
   }
 }

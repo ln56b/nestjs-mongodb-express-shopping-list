@@ -1,4 +1,4 @@
-import { Document, ObjectId } from 'mongoose';
+import { Document } from 'mongoose';
 
 export interface IShoppingList extends Document {
   readonly name: string;
@@ -6,5 +6,5 @@ export interface IShoppingList extends Document {
   readonly total: number;
   readonly createdAt: Date;
   readonly isMarkedOut: boolean;
-  readonly items: ObjectId[];
+  readonly items: string[];
 }

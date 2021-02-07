@@ -1,26 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ShoppingListService } from 'src/shopping-list/shopping-list.service';
-import { ItemDTO } from './dto/item.dto';
-import { Item } from './interfaces/item.interface';
+import { CreateItemDTO } from './dto/create-item.dto';
+import { Item } from './schemas/item.schema';
 
 @Injectable()
 export class ItemService {
   constructor(
     @InjectModel('Item')
     private readonly itemModel: Model<Item>,
-    private shoppingListService: ShoppingListService,
   ) {}
 
   // post an item
-  async addItem(listId: string, itemDTO: ItemDTO): Promise<Item> {
-    const newItem = new this.itemModel(itemDTO);
+  async addItem(listId: string, createItemDTO: CreateItemDTO): Promise<Item> {
+    const newItem = await new this.itemModel({
+      name: createItemDTO.name,
+      price: createItemDTO.price,
+      quantity: createItemDTO.quantity,
+      unit: createItemDTO.unit,
+      isMarkedOut: createItemDTO.isMarkedOut,
+      shoppingList: listId,
+    });
+
     const savedItem = await newItem.save();
-    //console.log(`this is the savedItem ${savedItem}`);
-    await this.shoppingListService.getOneList(listId),
-      { $push: { items: savedItem._id } },
-      { new: true, useAndModify: false };
     return savedItem;
   }
 
@@ -30,6 +32,7 @@ export class ItemService {
       .find({ shoppingList: listId })
       .populate('shoppingList')
       .exec();
+    console.log(items);
     return items;
   }
 

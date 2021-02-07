@@ -1,7 +1,5 @@
-import * as mongoose from 'mongoose';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { Item } from 'src/item/schemas/item.schema';
+import { Document, Types } from 'mongoose';
 
 @Schema()
 export class ShoppingList extends Document {
@@ -23,29 +21,13 @@ export class ShoppingList extends Document {
   @Prop({
     type: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Types.ObjectId,
         required: false,
         ref: 'Item',
       },
     ],
   })
-  items: mongoose.Schema.Types.ObjectId[];
+  items: Types.ObjectId[];
 }
 
 export const ShoppingListSchema = SchemaFactory.createForClass(ShoppingList);
-
-// const ShoppingListSchema = new mongoose.Schema({
-//   name: String,
-//   client: String,
-//   total: Number,
-//   createdAt: { type: Date, default: Date.now },
-//   isMarkedOut: { type: Boolean, default: false },
-//   items: [
-//     {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: 'Item',
-//     },
-//   ],
-// });
-
-// export default mongoose.model('ShoppingList', ShoppingListSchema);
