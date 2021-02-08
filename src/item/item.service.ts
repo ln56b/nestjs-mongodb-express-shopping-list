@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { CreateItemDTO } from './dto/create-item.dto';
 import { Item } from './schemas/item.schema';
 import { ShoppingList } from '../shopping-list/schemas/shopping-list.schema';
+import { UpdateItemDTO } from './dto/update-item.dto';
 
 @Injectable()
 export class ItemService {
@@ -39,5 +40,40 @@ export class ItemService {
         return this.itemModel.findById({ _id: itemId });
       });
     return item;
+  }
+
+  // update item from list
+  async updateItem(
+    listId: string,
+    itemId: string,
+    updateItemDTO: UpdateItemDTO,
+  ): Promise<Item> {
+    const itemToUpdate = await this.shoppingListModel
+      .findById({ _id: listId })
+      .populate('items')
+      .exec()
+      .then(() => {
+        return this.itemModel.findByIdAndUpdate(
+          { _id: itemId },
+          { $set: updateItemDTO },
+          { new: true, useFindAndModify: false },
+        );
+      });
+    return itemToUpdate;
+  }
+
+  // delete item from list
+  async deleteItem(listId: string, itemId: string): Promise<any> {
+    const itemToDelete = await this.shoppingListModel
+      .findById({ _id: listId })
+      .populate('items')
+      .exec()
+      .then(() => {
+        return this.itemModel.findByIdAndRemove(
+          { _id: itemId },
+          { new: true, useFindAndModify: false },
+        );
+      });
+    return itemToDelete;
   }
 }

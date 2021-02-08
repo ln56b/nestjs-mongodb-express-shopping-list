@@ -15,6 +15,7 @@ import { UpdateShoppingListDTO } from './dto/update-shopping-list.dto';
 import { CreateItemDTO } from '../item/dto/create-item.dto';
 import { ShoppingListService } from './shopping-list.service';
 import { ItemService } from 'src/item/item.service';
+import { UpdateItemDTO } from 'src/item/dto/update-item.dto';
 
 @Controller('lists')
 export class ShoppingListController {
@@ -80,7 +81,7 @@ export class ShoppingListController {
   @Put(':listId')
   async updateList(
     @Res() res,
-    @Param('listId') listId,
+    @Param('listId') listId: string,
     @Body() updateShoppingListDTO: UpdateShoppingListDTO,
   ) {
     try {
@@ -88,7 +89,9 @@ export class ShoppingListController {
         listId,
         updateShoppingListDTO,
       );
-      if (!list) throw new NotFoundException('List does not exist');
+      if (!list) {
+        throw new NotFoundException('List does not exist');
+      }
       return res
         .status(HttpStatus.OK)
         .json({ message: 'List successfully updated', list });
@@ -132,6 +135,50 @@ export class ShoppingListController {
   }
 
   // update an item from list
-
+  @Put(':listId/items/:itemId')
+  async updateItem(
+    @Res() res,
+    @Param('listId') listId: string,
+    @Param('itemId') itemId: string,
+    @Body() updateItemDTO: UpdateItemDTO,
+  ) {
+    try {
+      const item = this.itemService.updateItem(listId, itemId, updateItemDTO);
+      if (!item) {
+        throw new NotFoundException('Item does not exist');
+      }
+      return res
+        .status(HttpStatus.OK)
+        .json({ message: 'Item successfully updated', item });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Error: Item not updated',
+        status: 400,
+      });
+    }
+  }
   // delete an item from list
+  @Delete(':listId/items/:itemId')
+  async deleteItem(
+    @Res() res,
+    @Param('listId') listId: string,
+    @Param('itemId') itemId: string,
+  ) {
+    if (!listId) {
+      throw new NotFoundException('List ID does not exist');
+    }
+
+    if (!itemId) {
+      throw new NotFoundException('Item ID does not exist');
+    }
+
+    const item = this.itemService.deleteItem(listId, itemId);
+
+    if (!item) {
+      return new NotFoundException('Item does not exist');
+    }
+    return res
+      .status(HttpStatus.OK)
+      .json({ message: 'Item successfully deleted', item });
+  }
 }

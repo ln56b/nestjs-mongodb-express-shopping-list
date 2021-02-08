@@ -48,7 +48,8 @@ export class ShoppingListService {
   ): Promise<ShoppingList> {
     const listToUpdate = await this.shoppingListModel.findByIdAndUpdate(
       { _id: listId },
-      updateShoppingListDTO,
+      { $set: updateShoppingListDTO },
+      { new: true, useFindAndModify: false },
     );
 
     if (!listToUpdate) {
@@ -58,7 +59,10 @@ export class ShoppingListService {
   }
   // delete a list
   async deleteList(listId: string): Promise<any> {
-    const deletedList = await this.shoppingListModel.findByIdAndRemove(listId);
+    const deletedList = await this.shoppingListModel.findByIdAndRemove(
+      { _id: listId },
+      { new: true, useFindAndModify: false },
+    );
     return deletedList;
   }
 }
