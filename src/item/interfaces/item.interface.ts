@@ -6,5 +6,4 @@ export interface IItem extends Document {
   readonly quantity: number;
   readonly unit: string;
   readonly isMarkedOut: boolean;
-  readonly shoppingList: string;
 }

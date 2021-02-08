@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 
 @Schema()
 export class Item extends Document {
@@ -17,13 +17,6 @@ export class Item extends Document {
 
   @Prop({ type: Boolean, default: false })
   isMarkedOut: boolean;
-
-  @Prop({
-    type: Types.ObjectId,
-    required: true,
-    ref: 'ShoppingList',
-  })
-  shoppingList: Types.ObjectId;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);

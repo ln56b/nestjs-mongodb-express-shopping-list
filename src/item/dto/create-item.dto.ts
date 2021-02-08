@@ -13,7 +13,5 @@ export class CreateItemDTO {
   @IsString()
   readonly unit: string;
 
-  readonly isMarkedOut: boolean;
-
-  readonly shoppingList: string;
+  readonly isMarkedOut: boolean = false;
 }

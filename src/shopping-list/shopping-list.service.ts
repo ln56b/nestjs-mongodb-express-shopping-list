@@ -8,7 +8,7 @@ import { ShoppingList } from './schemas/shopping-list.schema';
 @Injectable()
 export class ShoppingListService {
   constructor(
-    @InjectModel('ShoppingList')
+    @InjectModel(ShoppingList.name)
     private readonly shoppingListModel: Model<ShoppingList>,
   ) {}
 
@@ -38,7 +38,6 @@ export class ShoppingListService {
     if (!list) {
       throw new NotFoundException(`List #${listId} does not exist`);
     }
-    console.log(list.populated('items'));
     return list;
   }
 
