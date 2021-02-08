@@ -38,9 +38,6 @@ export class ShoppingListService {
       .populate('items')
       .exec();
 
-    if (!list) {
-      throw new NotFoundException(`List #${listId} does not exist`);
-    }
     return list;
   }
 
@@ -55,9 +52,6 @@ export class ShoppingListService {
       { new: true, useFindAndModify: false },
     );
 
-    if (!listToUpdate) {
-      throw new NotFoundException(`List #${listId} does not exist`);
-    }
     return listToUpdate;
   }
   // delete a list

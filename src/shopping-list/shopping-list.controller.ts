@@ -70,6 +70,12 @@ export class ShoppingListController {
     @Param('listId') listId: string,
     @Param('itemId') itemId: string,
   ) {
+    const list = await this.shoppingListService.getOneList(listId);
+
+    if (!list) {
+      throw new NotFoundException('List does not exist');
+    }
+
     const item = await this.itemService.getItem(listId, itemId);
     if (!item) {
       throw new NotFoundException('Item does not exist');
@@ -84,23 +90,16 @@ export class ShoppingListController {
     @Param('listId') listId: string,
     @Body() updateShoppingListDTO: UpdateShoppingListDTO,
   ) {
-    try {
-      const list = await this.shoppingListService.updateList(
-        listId,
-        updateShoppingListDTO,
-      );
-      if (!list) {
-        throw new NotFoundException('List does not exist');
-      }
-      return res
-        .status(HttpStatus.OK)
-        .json({ message: 'List successfully updated', list });
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: List not updated',
-        status: 400,
-      });
+    const list = await this.shoppingListService.updateList(
+      listId,
+      updateShoppingListDTO,
+    );
+    if (!list) {
+      throw new NotFoundException('List does not exist');
     }
+    return res
+      .status(HttpStatus.OK)
+      .json({ message: 'List successfully updated', list });
   }
 
   // delete a list
@@ -126,8 +125,12 @@ export class ShoppingListController {
     @Param('listId') listId: string,
     @Body() createItemDTO: CreateItemDTO,
   ) {
+    const list = await this.shoppingListService.getOneList(listId);
+    if (!list) {
+      throw new NotFoundException('List does not exist');
+    }
     const item = await this.itemService.addItem(listId, createItemDTO);
-    if (!listId) throw new NotFoundException('List does not exist');
+
     return res.status(HttpStatus.OK).json({
       message: 'Item successfully created',
       item,
@@ -142,20 +145,23 @@ export class ShoppingListController {
     @Param('itemId') itemId: string,
     @Body() updateItemDTO: UpdateItemDTO,
   ) {
-    try {
-      const item = this.itemService.updateItem(listId, itemId, updateItemDTO);
-      if (!item) {
-        throw new NotFoundException('Item does not exist');
-      }
-      return res
-        .status(HttpStatus.OK)
-        .json({ message: 'Item successfully updated', item });
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: Item not updated',
-        status: 400,
-      });
+    const list = await this.shoppingListService.getOneList(listId);
+    if (!list) {
+      throw new NotFoundException('List does not exist');
     }
+
+    if (!itemId) {
+      throw new NotFoundException('Item does not exist');
+    }
+
+    const item = await this.itemService.updateItem(
+      listId,
+      itemId,
+      updateItemDTO,
+    );
+    return res
+      .status(HttpStatus.OK)
+      .json({ message: 'Item successfully updated', item });
   }
   // delete an item from list
   @Delete(':listId/items/:itemId')
@@ -164,19 +170,16 @@ export class ShoppingListController {
     @Param('listId') listId: string,
     @Param('itemId') itemId: string,
   ) {
-    if (!listId) {
-      throw new NotFoundException('List ID does not exist');
+    const list = await this.shoppingListService.getOneList(listId);
+    if (!list) {
+      throw new NotFoundException('List does not exist');
     }
 
     if (!itemId) {
-      throw new NotFoundException('Item ID does not exist');
-    }
-
-    const item = this.itemService.deleteItem(listId, itemId);
-
-    if (!item) {
       return new NotFoundException('Item does not exist');
     }
+    const item = this.itemService.deleteItem(listId, itemId);
+
     return res
       .status(HttpStatus.OK)
       .json({ message: 'Item successfully deleted', item });
