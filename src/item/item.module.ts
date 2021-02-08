@@ -12,6 +12,6 @@ import { ShoppingListController } from 'src/shopping-list/shopping-list.controll
   ],
   providers: [ItemService],
   controllers: [ShoppingListController],
-  exports: [ItemService],
+  exports: [ItemService, MongooseModule],
 })
 export class ItemModule {}

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Item } from 'src/item/schemas/item.schema';
 import { CreateShoppingListDTO } from './dto/create-shopping-list.dto';
 import { UpdateShoppingListDTO } from './dto/update-shopping-list.dto';
 import { ShoppingList } from './schemas/shopping-list.schema';
@@ -10,6 +11,8 @@ export class ShoppingListService {
   constructor(
     @InjectModel(ShoppingList.name)
     private readonly shoppingListModel: Model<ShoppingList>,
+    @InjectModel(Item.name)
+    private readonly itemModel: Model<Item>,
   ) {}
 
   // post a list
@@ -59,10 +62,14 @@ export class ShoppingListService {
   }
   // delete a list
   async deleteList(listId: string): Promise<any> {
-    const deletedList = await this.shoppingListModel.findByIdAndRemove(
-      { _id: listId },
-      { new: true, useFindAndModify: false },
-    );
-    return deletedList;
+    const listToDelete = await this.shoppingListModel.findByIdAndDelete({
+      _id: listId,
+    });
+    this.itemModel.deleteMany({
+      _id: {
+        $in: listToDelete.items,
+      },
+    });
+    return listToDelete;
   }
 }

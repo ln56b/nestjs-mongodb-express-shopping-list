@@ -69,9 +69,9 @@ export class ItemService {
       .populate('items')
       .exec()
       .then(() => {
-        return this.itemModel.findByIdAndRemove(
+        return this.itemModel.findByIdAndDelete(
           { _id: itemId },
-          { new: true, useFindAndModify: false },
+          { useFindAndModify: false },
         );
       });
     return itemToDelete;
