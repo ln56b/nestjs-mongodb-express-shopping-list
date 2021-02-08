@@ -62,6 +62,20 @@ export class ShoppingListController {
     return res.status(HttpStatus.OK).json(list);
   }
 
+  // get one item from list
+  @Get(':listId/items/:itemId')
+  async getOneItemFromList(
+    @Res() res,
+    @Param('listId') listId: string,
+    @Param('itemId') itemId: string,
+  ) {
+    const item = await this.itemService.getItem(listId, itemId);
+    if (!item) {
+      throw new NotFoundException('Item does not exist');
+    }
+    return res.status(HttpStatus.OK).json(item);
+  }
+
   // update a list
   @Put(':listId')
   async updateList(
@@ -116,8 +130,6 @@ export class ShoppingListController {
       item,
     });
   }
-
-  // get one item from list
 
   // update an item from list
 

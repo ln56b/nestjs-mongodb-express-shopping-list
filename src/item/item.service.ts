@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateItemDTO } from './dto/create-item.dto';
@@ -27,5 +27,17 @@ export class ItemService {
       .then(() => {
         return newItem.save();
       });
+  }
+
+  // get one item from list
+  async getItem(listId: string, itemId: string): Promise<Item> {
+    const item = await this.shoppingListModel
+      .findById({ _id: listId })
+      .populate('items')
+      .exec()
+      .then(() => {
+        return this.itemModel.findById({ _id: itemId });
+      });
+    return item;
   }
 }
